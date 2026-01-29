@@ -89,89 +89,6 @@ local GetMaxUpgradeLevel = function(bonusId)
   return nil
 end
 
-
--- local CreateSlotFrame = function(unitId, slot)
---   if slot == nil then
---     return nil
---   end
-
---   local slotPrefix = "Inspect"
---   if unitId == "player" then
---     slotPrefix = "Character"
---   end
-
---   local parent = _G[slotPrefix .. slot.name .. "Slot"]
---   if parent == nil then
---     return nil
---   end
-
---   local relativePoint = slot.side == "LEFT" and "RIGHT" or "LEFT"
---   local offsetX = slot.side == "LEFT" and 9 or -10
---   local offsetEnchantY = (slot.id == 16 or slot.id == 17) and -12 or 8
-
---   if parent[LCSFrameName] == nil then
---     parent[LCSFrameName] = CreateFrame("Frame", parent:GetName() .. LCSFrameName, parent)
---     parent[LCSFrameName]:SetPoint("CENTER")
---     parent[LCSFrameName]:SetAllPoints(parent)
---     -- parent[LCSFrameName]:Show()
---   else
---     return parent
---   end
-
---   -- Overlay tint
---   if parent[LCSFrameName].Tint == nil then
---     parent[LCSFrameName].Tint = parent[LCSFrameName]:CreateTexture(nil, "BACKGROUND")
---     parent[LCSFrameName].Tint:SetTexture("Interface\\TutorialFrame\\TutorialFrameBackground")
---     parent[LCSFrameName].Tint:SetAllPoints(parent[LCSFrameName])
---   end
-
---   if parent[LCSFrameName].Level == nil then
---     parent[LCSFrameName].Level = parent[LCSFrameName]:CreateFontString(parent[LCSFrameName]:GetName() .. "Level", "OVERLAY", "GameTooltipText")
---     parent[LCSFrameName].Level:SetPoint("CENTER", parent[LCSFrameName], "CENTER", 0, 0)
---     local font, fontSize = parent[LCSFrameName].Level:GetFont()
---     if font then
---       parent[LCSFrameName].Level:SetFont(font, fontSize + 1, "OUTLINE")
---     end
---   end
-
---   if parent[LCSFrameName].MaxLevel == nil then
---     parent[LCSFrameName].MaxLevel = parent[LCSFrameName]:CreateFontString(parent[LCSFrameName]:GetName() .. "MaxLevel", "OVERLAY", "GameTooltipText")
---     parent[LCSFrameName].MaxLevel:SetPoint("CENTER", parent[LCSFrameName], "CENTER", 0, -8)
---     local font, fontSize = parent[LCSFrameName].Level:GetFont()
---     if font then
---       parent[LCSFrameName].MaxLevel:SetFont(font, fontSize - 3, "OUTLINE")
---     end
---   end
-
---   if parent[LCSFrameName].Enchant == nil then
---     parent[LCSFrameName].Enchant = parent[LCSFrameName]:CreateFontString(parent[LCSFrameName]:GetName() .. "Enchant", "OVERLAY", "GameTooltipText")
---     parent[LCSFrameName].Enchant:SetPoint(slot.side, parent[LCSFrameName], relativePoint, offsetX, offsetEnchantY)
---     parent[LCSFrameName].Enchant:SetWidth(80)
---     parent[LCSFrameName].Enchant:SetWordWrap(false)
---     local font, fontSize = parent[LCSFrameName].Level:GetFont()
---     if font then
---       parent[LCSFrameName].Enchant:SetFont(font, fontSize - 3, "OUTLINE")
---     end
---   end
-
---   if parent[LCSFrameName].Sockets == nil then
---     parent[LCSFrameName].Sockets = {}
---     for i = 1, 3 do
---       if parent[LCSFrameName].Sockets[i] == nil then
---         parent[LCSFrameName].Sockets[i] = CreateFrame("Button", parent[LCSFrameName]:GetName() .. "Socket" .. i, parent[LCSFrameName], "UIPanelButtonTemplate")
---         parent[LCSFrameName].Sockets[i]:SetSize(14, 14)
---         local socketOffsetX = offsetX - 3 - (15 * (i - 1))
---         if slot.side == "LEFT" then
---           socketOffsetX = offsetX + 3 + (15 * (i - 1))
---         end
---         parent[LCSFrameName].Sockets[i]:SetPoint(slot.side, parent[LCSFrameName]:GetName(), relativePoint, socketOffsetX, 0)
---       end
---     end
---   end
-
---   return parent
--- end
-
 local UpdateSlot = function(unitId, slotId)
   if unitId == nil or slotId == nil then return end
 
@@ -195,45 +112,37 @@ local UpdateSlot = function(unitId, slotId)
     LCSFrame = CharacterSlotFrame[LCSFrameName]
     LCSFrame:SetPoint("CENTER")
     LCSFrame:SetAllPoints(CharacterSlotFrame)
-    -- LCSFrame:Show()
 
     -- Overlay tint
-    -- if LCSFrame.Tint == nil then
     LCSFrame.Tint = LCSFrame:CreateTexture(nil, "BACKGROUND")
     LCSFrame.Tint:SetTexture("Interface\\TutorialFrame\\TutorialFrameBackground")
     LCSFrame.Tint:SetAllPoints(LCSFrame)
-    -- end
 
-    -- if LCSFrame.Level == nil then
+    -- Level string
     LCSFrame.Level = LCSFrame:CreateFontString(LCSFrame:GetName() .. "Level", "OVERLAY", "GameTooltipText")
     LCSFrame.Level:SetPoint("CENTER", LCSFrame, "CENTER", 0, 0)
     local font, fontSize = LCSFrame.Level:GetFont()
     if font then
       LCSFrame.Level:SetFont(font, fontSize + 1, "OUTLINE")
     end
-    -- end
 
-    -- if LCSFrame.MaxLevel == nil then
+    -- Max level string
     LCSFrame.MaxLevel = LCSFrame:CreateFontString(LCSFrame:GetName() .. "MaxLevel", "OVERLAY", "GameTooltipText")
     LCSFrame.MaxLevel:SetPoint("CENTER", LCSFrame, "CENTER", 0, -8)
-    local font, fontSize = LCSFrame.Level:GetFont()
     if font then
       LCSFrame.MaxLevel:SetFont(font, fontSize - 3, "OUTLINE")
     end
-    -- end
 
-    -- if LCSFrame.Enchant == nil then
+    -- Enchant string
     LCSFrame.Enchant = LCSFrame:CreateFontString(LCSFrame:GetName() .. "Enchant", "OVERLAY", "GameTooltipText")
     LCSFrame.Enchant:SetPoint(slot.side, LCSFrame, relativePoint, offsetX, offsetEnchantY)
     LCSFrame.Enchant:SetWidth(80)
     LCSFrame.Enchant:SetWordWrap(false)
-    local font, fontSize = LCSFrame.Level:GetFont()
     if font then
       LCSFrame.Enchant:SetFont(font, fontSize - 3, "OUTLINE")
     end
-    -- end
 
-    -- if LCSFrame.Sockets == nil then
+    -- Sockets
     LCSFrame.Sockets = {}
     for i = 1, 3 do
       if LCSFrame.Sockets[i] == nil then
@@ -246,12 +155,7 @@ local UpdateSlot = function(unitId, slotId)
         LCSFrame.Sockets[i]:SetPoint(slot.side, LCSFrame:GetName(), relativePoint, socketOffsetX, 0)
       end
     end
-    -- end
   end
-
-  -- local parent = CreateSlotFrame(unitId, slot)
-  -- if parent == nil then return end
-  -- if parent[LCSFrameName] == nil then return end
 
   local itemId = GetInventoryItemID(unitId, slotId)
   if itemId == nil then
