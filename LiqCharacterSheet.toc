@@ -8,7 +8,7 @@
 ## X-Website: https://www.curseforge.com/wow/addons/liqcharactersheet
 ## X-Curse-Project-ID: 1447774
 ## X-Wago-ID: E6gv13N1
-### X-WoWI-ID: 
+## X-WoWI-ID: 27024
 ## Category: Equipment
 ## Category-deDE: Ausrüstung
 ## Category-esES: Equipo
