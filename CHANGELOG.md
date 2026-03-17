@@ -4,6 +4,7 @@
 
 ### Updated
 
+- Updated to Midnight Season 1.
 - Updated inventory slots that can be enchanted.
 
 ## v1.0.1 - 2026-01-29
