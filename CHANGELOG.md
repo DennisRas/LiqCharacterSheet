@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.0 - 2026-03-17
+
+### Updated
+
+- Updated inventory slots that can be enchanted.
+
 ## v1.0.1 - 2026-01-29
 
 ### Updated
