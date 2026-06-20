@@ -21,4 +21,4 @@
 ## Category-zhCN: 装备
 ## Category-zhTW: 裝備
 
-Main.lua
+LiqCharacterSheet.lua
