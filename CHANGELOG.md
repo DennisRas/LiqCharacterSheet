@@ -1,15 +1,16 @@
 # Changelog
 
-## v1.1.0 - 2026-03-17
+## v1.1.1 - TBD
 
-### Updated
+- Updated packaging and addon icon/logo.
+- Updated TOC number to support patch 12.0.7.
+
+## v1.1.0 - 2026-03-17
 
 - Updated to Midnight Season 1.
 - Updated inventory slots that can be enchanted.
 
 ## v1.0.1 - 2026-01-29
-
-### Updated
 
 - Clean up the code a bit
 
