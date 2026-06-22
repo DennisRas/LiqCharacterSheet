@@ -1,0 +1,6 @@
+---@class LCS_Addon
+---@field name string
+---@field title string
+---@field version string
+---@field notes string
+---@field Events LCS_Events

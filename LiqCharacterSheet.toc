@@ -1,5 +1,5 @@
 ## Interface: 120007
-## Title: LiqCharacterSheet
+## Title: Liq Character Sheet
 ## Notes: Show item levels, enchants, gems and max upgrade levels on your character sheet
 ## Version: @project-version@
 ## Author: Liquidor (EU Silvermoon)
@@ -21,4 +21,11 @@
 ## Category-zhCN: 装备
 ## Category-zhTW: 裝備
 
+Boot.lua
 LiqCharacterSheet.lua
+
+#@debug@
+Debug\Types\Addon.lua
+Debug\Types\Config.lua
+Debug\Types\CharacterSheet.lua
+#@end-debug@

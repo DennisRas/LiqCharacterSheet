@@ -2,7 +2,7 @@
 
 ## v1.1.1 - TBD
 
-- Updated packaging and addon icon/logo.
+- Updated packaging, addon icon, and addon list display name to "Liq Character Sheet".
 - Updated TOC number to support patch 12.0.7.
 
 ## v1.1.0 - 2026-03-17
