@@ -3,4 +3,5 @@
 ---@field title string
 ---@field version string
 ---@field notes string
+---@field Data LCS_Data
 ---@field Events LCS_Events

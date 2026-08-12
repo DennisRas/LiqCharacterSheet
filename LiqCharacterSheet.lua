@@ -1,6 +1,8 @@
 ---@class LCS_Addon
 local addon = select(2, ...)
 
+local Data = addon.Data
+
 local _G = _G
 local defaultFont = "Fonts\\FRIZQT__.TTF"
 local defaultFontsize = 13
@@ -13,7 +15,6 @@ local defaultColorLevel = {r = 1, g = 1, b = 1, a = 1}
 local defaultColorMaxLevel = {r = 1, g = 1, b = 1, a = 1}
 local defaultColorMaxLevelsUpgraded = {r = 0, g = 1, b = 0, a = 1}
 local slotOverlayFrameName = "LCSFrame"
-local maxUpgradeLevel = 289
 
 ---@type LCS_Config
 local config = {
@@ -39,52 +40,50 @@ local config = {
   },
 }
 
----@type table<number, LCS_Slot>
-local Slots = {
-  [1] = {id = 1, side = "LEFT", name = "Head", canEnchant = true},
-  [2] = {id = 2, side = "LEFT", name = "Neck", canEnchant = false},
-  [3] = {id = 3, side = "LEFT", name = "Shoulder", canEnchant = true},
-  -- [4] = {id = 4, side = "LEFT", name = "Shirt", canEnchant = false},
-  [5] = {id = 5, side = "LEFT", name = "Chest", canEnchant = true},
-  [6] = {id = 6, side = "RIGHT", name = "Waist", canEnchant = false},
-  [7] = {id = 7, side = "RIGHT", name = "Legs", canEnchant = true},
-  [8] = {id = 8, side = "RIGHT", name = "Feet", canEnchant = true},
-  [9] = {id = 9, side = "LEFT", name = "Wrist", canEnchant = false},
-  [10] = {id = 10, side = "RIGHT", name = "Hands", canEnchant = false},
-  [11] = {id = 11, side = "RIGHT", name = "Finger0", canEnchant = true},
-  [12] = {id = 12, side = "RIGHT", name = "Finger1", canEnchant = true},
-  [13] = {id = 13, side = "RIGHT", name = "Trinket0", canEnchant = false},
-  [14] = {id = 14, side = "RIGHT", name = "Trinket1", canEnchant = false},
-  [15] = {id = 15, side = "LEFT", name = "Back", canEnchant = false},
-  [16] = {id = 16, side = "RIGHT", name = "MainHand", canEnchant = true},
-  [17] = {id = 17, side = "LEFT", name = "SecondaryHand", canEnchant = true},
-  -- [18] = {id = 18, side = "LEFT", name = "Ranged", canEnchant = false},
-  -- [19] = {id = 19, side = "LEFT", name = "Tabard", canEnchant = false},
-}
+---@type table<number, number>?
+local bonusMaxLevels
 
---- Credit: https://www.raidbots.com/static/data/live/bonuses.json
---- Season 17 / Midnight S1
----@type table<number, number[]>
-local maxUpgradeLevels = {
-  [237] = {12769, 12770, 12771, 12772, 12773, 12774},                   -- Adventurer
-  [250] = {12777, 12778, 12779, 12780, 12781, 12782},                   -- Veteran
-  [263] = {12785, 12786, 12787, 12788, 12789, 12790},                   -- Champion
-  [276] = {12793, 12794, 12795, 12796, 12797, 12798},                   -- Hero
-  [289] = {12801, 12802, 12803, 12804, 12805, 12806},                   -- Myth
-  [285] = {9401, 9402, 9403, 9404, 9405, 9623, 9624, 9625, 9626, 9627}, -- Crafted Qualities
-}
-
----@param bonusId number
----@return number|nil
-local function GetMaxUpgradeLevel(bonusId)
-  for level, ids in pairs(maxUpgradeLevels) do
-    for index = 1, #ids do
-      if ids[index] == bonusId then
-        return level
+local function EnsureBonusMaxLevels()
+  if bonusMaxLevels then
+    return
+  end
+  ---@type table<number, number>
+  local index = {}
+  for seasonIndex = 1, #Data.seasons do
+    local season = Data.seasons[seasonIndex]
+    for trackIndex = 1, #season.tracks do
+      local track = season.tracks[trackIndex]
+      for bonusIndex = 1, #track.bonusIDs do
+        index[track.bonusIDs[bonusIndex]] = track.maxLevel
       end
     end
   end
-  return nil
+  bonusMaxLevels = index
+end
+
+---@param bonusId number
+---@return number?
+local function GetMaxUpgradeLevel(bonusId)
+  EnsureBonusMaxLevels()
+  return bonusMaxLevels[bonusId]
+end
+
+---@return number
+local function GetCurrentMaxUpgradeLevel()
+  local seasonID = C_MythicPlus.GetCurrentSeason()
+  if seasonID and seasonID > 0 then
+    for seasonIndex = 1, #Data.seasons do
+      local season = Data.seasons[seasonIndex]
+      if season.seasonID == seasonID then
+        return season.maxUpgradeLevel
+      end
+    end
+  end
+  local lastSeason = Data.seasons[#Data.seasons]
+  if lastSeason then
+    return lastSeason.maxUpgradeLevel
+  end
+  return 0
 end
 
 ---@param unitId string
@@ -94,7 +93,7 @@ local function UpdateSlot(unitId, slotId)
     return
   end
 
-  local slot = Slots[slotId]
+  local slot = Data.slots[slotId]
   if slot == nil then
     return
   end
@@ -302,14 +301,6 @@ local function UpdateSlot(unitId, slotId)
     end
   end
 
-  if itemId == 235499 then
-    maxLevel = 170
-  end
-
-  if itemId == 245966 or itemId == 245964 or itemId == 245965 or itemId == 242664 then
-    maxLevel = 141
-  end
-
   if maxLevel == nil then
     if config.colors.levels ~= nil then
       local red, green, blue, alpha = DISABLED_FONT_COLOR:GetRGBA()
@@ -415,7 +406,8 @@ local function UpdateSlot(unitId, slotId)
   slotOverlay.Tint:SetColorTexture(colorTexture.r, colorTexture.g, colorTexture.b, colorTexture.a)
 
   if itemLevel ~= nil then
-    if itemLevel == maxLevel or itemLevel >= maxUpgradeLevel then
+    local currentMaxUpgradeLevel = GetCurrentMaxUpgradeLevel()
+    if itemLevel == maxLevel or itemLevel >= currentMaxUpgradeLevel then
       slotOverlay.Level:SetTextColor(colorMaxLevelUpgraded.r, colorMaxLevelUpgraded.g, colorMaxLevelUpgraded.b, colorMaxLevelUpgraded.a)
       slotOverlay.MaxLevel:SetTextColor(colorMaxLevelUpgraded.r, colorMaxLevelUpgraded.g, colorMaxLevelUpgraded.b, colorMaxLevelUpgraded.a)
     end
@@ -426,7 +418,7 @@ end
 
 ---@param unitId string
 local function UpdateAll(unitId)
-  for slotId in pairs(Slots) do
+  for slotId in pairs(Data.slots) do
     UpdateSlot(unitId, slotId)
   end
 end
