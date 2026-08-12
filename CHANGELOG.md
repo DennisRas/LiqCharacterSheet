@@ -2,7 +2,7 @@
 
 ## v1.1.1 - 2026-08-12
 
-- Updated packaging, addon icon, and addon list display name to "Liq Character Sheet".
+- Updated addon icon and addon list display name to "Liq Character Sheet".
 - Updated TOC number to support patch 12.1.
 - Updated max upgrade level data so previous season gear keeps the correct ceiling.
 - Updated max upgrade levels for Midnight Season 2.
