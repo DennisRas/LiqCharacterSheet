@@ -2,11 +2,6 @@ package-as: LiqCharacterSheet
 
 enable-nolib-creation: no
 
-ignore:
-  - "*.png"
-  - "*.jpg"
-  - "*.psd"
-
 manual-changelog:
   filename: CHANGELOG.md
   markup-type: markdown
