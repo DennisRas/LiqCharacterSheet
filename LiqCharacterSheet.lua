@@ -294,7 +294,7 @@ local function UpdateSlot(unitId, slotId)
       local bonusId = tonumber(itemPayloadSplit[bonusIndex])
       if bonusId ~= nil then
         local maxLevelUpgrade = GetMaxUpgradeLevel(bonusId)
-        if maxLevelUpgrade ~= nil then
+        if maxLevelUpgrade ~= nil and (maxLevel == nil or maxLevelUpgrade > maxLevel) then
           maxLevel = maxLevelUpgrade
         end
       end

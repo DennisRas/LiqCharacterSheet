@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.2 - 2026-08-14
+
+- Fixed max upgrade levels for Sporefused, Ascendant Voidforged, and Midnight crafted items.
+
 ## v1.1.1 - 2026-08-12
 
 - Updated addon icon and addon list display name to "Liq Character Sheet".
