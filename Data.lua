@@ -39,6 +39,13 @@ Data.seasons = {
       {maxLevel = 276, bonusIDs = {12793, 12794, 12795, 12796, 12797, 12798}}, -- Hero
       {maxLevel = 289, bonusIDs = {12801, 12802, 12803, 12804, 12805, 12806}}, -- Myth
       {maxLevel = 285, bonusIDs = {9401, 9402, 9403, 9404, 9405, 9623, 9624, 9625, 9626, 9627}}, -- Crafted Qualities
+      {maxLevel = 285, bonusIDs = {12493, 12494, 12495, 12496, 12497, 13622}}, -- Midnight Crafted
+      {maxLevel = 298, bonusIDs = {12498, 12499, 12500, 12501, 12502}}, -- Midnight Crafted Weapons
+      {maxLevel = 259, bonusIDs = {13789}}, -- Sporefused: Veteran
+      {maxLevel = 272, bonusIDs = {13788}}, -- Sporefused: Champion
+      {maxLevel = 285, bonusIDs = {13787, 13653}}, -- Sporefused: Hero / Ascendant Voidforged: Hero
+      {maxLevel = 298, bonusIDs = {13786, 13654}}, -- Sporefused: Myth / Ascendant Voidforged: Myth
+      {maxLevel = 295, bonusIDs = {13655}}, -- Ascendant Voidforged
     },
   },
   {
