@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.1.2 - TBD
+## v1.1.2 - 2026-08-14
 
 - Fixed max upgrade levels for Sporefused, Ascendant Voidforged, and Midnight crafted items.
 
