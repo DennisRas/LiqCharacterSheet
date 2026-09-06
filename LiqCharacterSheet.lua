@@ -1,7 +1,9 @@
 ---@class LCS_Addon
 local addon = select(2, ...)
 
-local Data = addon.Data
+local LiqUI = addon.libs.LiqUI
+local TableForEach = LiqUI.Utils.TableForEach
+local inventorySlotSides = LiqUI.Constants.inventorySlotSides
 
 local _G = _G
 local defaultFont = "Fonts\\FRIZQT__.TTF"
@@ -40,52 +42,6 @@ local config = {
   },
 }
 
----@type table<number, number>?
-local bonusMaxLevels
-
-local function EnsureBonusMaxLevels()
-  if bonusMaxLevels then
-    return
-  end
-  ---@type table<number, number>
-  local index = {}
-  for seasonIndex = 1, #Data.seasons do
-    local season = Data.seasons[seasonIndex]
-    for trackIndex = 1, #season.tracks do
-      local track = season.tracks[trackIndex]
-      for bonusIndex = 1, #track.bonusIDs do
-        index[track.bonusIDs[bonusIndex]] = track.maxLevel
-      end
-    end
-  end
-  bonusMaxLevels = index
-end
-
----@param bonusId number
----@return number?
-local function GetMaxUpgradeLevel(bonusId)
-  EnsureBonusMaxLevels()
-  return bonusMaxLevels[bonusId]
-end
-
----@return number
-local function GetCurrentMaxUpgradeLevel()
-  local seasonID = C_MythicPlus.GetCurrentSeason()
-  if seasonID and seasonID > 0 then
-    for seasonIndex = 1, #Data.seasons do
-      local season = Data.seasons[seasonIndex]
-      if season.seasonID == seasonID then
-        return season.maxUpgradeLevel
-      end
-    end
-  end
-  local lastSeason = Data.seasons[#Data.seasons]
-  if lastSeason then
-    return lastSeason.maxUpgradeLevel
-  end
-  return 0
-end
-
 ---@param unitId string
 ---@param slotId number
 local function UpdateSlot(unitId, slotId)
@@ -93,13 +49,13 @@ local function UpdateSlot(unitId, slotId)
     return
   end
 
-  local slot = Data.slots[slotId]
+  local slot = LiqUI.Data:GetInventorySlotByID(slotId)
   if slot == nil then
     return
   end
 
   ---@type Button|nil
-  local characterSlotFrame = _G[(unitId == "player" and "Character" or "Inspect") .. slot.name .. "Slot"]
+  local characterSlotFrame = _G[(unitId == "player" and "Character" or "Inspect") .. slot.paperdoll .. "Slot"]
   if characterSlotFrame == nil then
     return
   end
@@ -107,9 +63,9 @@ local function UpdateSlot(unitId, slotId)
   ---@type LCS_SlotOverlay|nil
   local slotOverlay = characterSlotFrame[slotOverlayFrameName]
   if slotOverlay == nil then
-    local relativePoint = slot.side == "LEFT" and "RIGHT" or "LEFT"
-    local offsetX = slot.side == "LEFT" and 9 or -10
-    local offsetEnchantY = (slot.id == 16 or slot.id == 17) and -12 or 8
+    local relativePoint = slot.side == inventorySlotSides.LEFT and inventorySlotSides.RIGHT or inventorySlotSides.LEFT
+    local offsetX = slot.side == inventorySlotSides.LEFT and 9 or -10
+    local offsetEnchantY = (slot.id == INVSLOT_MAINHAND or slot.id == INVSLOT_OFFHAND) and -12 or 8
 
     characterSlotFrame[slotOverlayFrameName] = CreateFrame("Frame", characterSlotFrame:GetName() .. slotOverlayFrameName, characterSlotFrame)
     slotOverlay = characterSlotFrame[slotOverlayFrameName]
@@ -148,7 +104,7 @@ local function UpdateSlot(unitId, slotId)
         slotOverlay.Sockets[socketIndex] = CreateFrame("Button", slotOverlay:GetName() .. "Socket" .. socketIndex, slotOverlay, "UIPanelButtonTemplate")
         slotOverlay.Sockets[socketIndex]:SetSize(14, 14)
         local socketOffsetX = offsetX - 3 - (15 * (socketIndex - 1))
-        if slot.side == "LEFT" then
+        if slot.side == inventorySlotSides.LEFT then
           socketOffsetX = offsetX + 3 + (15 * (socketIndex - 1))
         end
         slotOverlay.Sockets[socketIndex]:SetPoint(slot.side, slotOverlay:GetName(), relativePoint, socketOffsetX, 0)
@@ -293,7 +249,7 @@ local function UpdateSlot(unitId, slotId)
     for bonusIndex = 14, 13 + numBonuses do
       local bonusId = tonumber(itemPayloadSplit[bonusIndex])
       if bonusId ~= nil then
-        local maxLevelUpgrade = GetMaxUpgradeLevel(bonusId)
+        local maxLevelUpgrade = LiqUI.Data:GetUpgradeMaxLevel(bonusId)
         if maxLevelUpgrade ~= nil and (maxLevel == nil or maxLevelUpgrade > maxLevel) then
           maxLevel = maxLevelUpgrade
         end
@@ -320,7 +276,7 @@ local function UpdateSlot(unitId, slotId)
   end
 
   if itemEnchant == nil then
-    if slot.canEnchant == true then
+    if slot.canEnchant then
       enchantText = "No enchant"
       colorEnchant = colorEnchantMissing
       if config.show.enchantsMissing == true and (itemEquipLoc ~= "INVTYPE_HOLDABLE" and itemEquipLoc ~= "INVTYPE_SHIELD") then
@@ -347,11 +303,11 @@ local function UpdateSlot(unitId, slotId)
 
   slotOverlay.Enchant:SetText(enchantText)
   slotOverlay.Enchant:SetTextColor(colorEnchant.r, colorEnchant.g, colorEnchant.b, colorEnchant.a)
-  slotOverlay.Enchant:SetJustifyH(slot.side == "RIGHT" and "RIGHT" or "LEFT")
+  slotOverlay.Enchant:SetJustifyH(slot.side == inventorySlotSides.RIGHT and inventorySlotSides.RIGHT or inventorySlotSides.LEFT)
 
-  if slot.id ~= 16 and slot.id ~= 17 then
+  if slot.id ~= INVSLOT_MAINHAND and slot.id ~= INVSLOT_OFFHAND then
     local point, relativeTo, relativePoint, offsetX = slotOverlay.Enchant:GetPoint()
-    if itemSocketCount > 0 or (slot.id == 9 or slot.id == 14) then
+    if itemSocketCount > 0 then
       slotOverlay.Enchant:SetPoint(point, relativeTo, relativePoint, offsetX, 8)
     else
       slotOverlay.Enchant:SetPoint(point, relativeTo, relativePoint, offsetX, 0)
@@ -391,7 +347,7 @@ local function UpdateSlot(unitId, slotId)
       end
     end
 
-    if enchantText ~= "" or (slot.id == 9 or slot.id == 14) then
+    if enchantText ~= "" or itemSocketCount > 0 then
       socketFrame:SetPoint(point, relativeTo, relativePoint, offsetX, -8)
     else
       socketFrame:SetPoint(point, relativeTo, relativePoint, offsetX, 0)
@@ -406,7 +362,7 @@ local function UpdateSlot(unitId, slotId)
   slotOverlay.Tint:SetColorTexture(colorTexture.r, colorTexture.g, colorTexture.b, colorTexture.a)
 
   if itemLevel ~= nil then
-    local currentMaxUpgradeLevel = GetCurrentMaxUpgradeLevel()
+    local currentMaxUpgradeLevel = LiqUI.Data:GetCurrentMaxUpgradeLevel()
     if itemLevel == maxLevel or itemLevel >= currentMaxUpgradeLevel then
       slotOverlay.Level:SetTextColor(colorMaxLevelUpgraded.r, colorMaxLevelUpgraded.g, colorMaxLevelUpgraded.b, colorMaxLevelUpgraded.a)
       slotOverlay.MaxLevel:SetTextColor(colorMaxLevelUpgraded.r, colorMaxLevelUpgraded.g, colorMaxLevelUpgraded.b, colorMaxLevelUpgraded.a)
@@ -418,9 +374,9 @@ end
 
 ---@param unitId string
 local function UpdateAll(unitId)
-  for slotId in pairs(Data.slots) do
-    UpdateSlot(unitId, slotId)
-  end
+  TableForEach(LiqUI.Data:GetInventorySlots(), function(slot)
+    UpdateSlot(unitId, slot.id)
+  end)
 end
 
 ---@param self LCS_Events

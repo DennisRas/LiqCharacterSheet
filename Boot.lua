@@ -7,6 +7,9 @@ addon.title = title
 addon.notes = notes
 addon.version = C_AddOns.GetAddOnMetadata(name, "Version") or ""
 
+addon.libs = addon.libs or {}
+addon.libs.LiqUI = LibStub("LiqUI-1.0")
+
 --@debug@
 _G[addon.name] = addon
 --@end-debug@
