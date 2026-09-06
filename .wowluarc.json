@@ -2,12 +2,17 @@
   "$schema": "https://raw.githubusercontent.com/TradeSkillMaster/wowlua-ls/main/editors/vscode/wowluarc.schema.json",
   "addonRoot": true,
   "flavors": ["retail"],
+  "library": ["Libs/"],
+  "inference": {
+    "implicitProtectedPrefix": true
+  },
   "diagnostics": {
-    "disable": [
-      "deprecated",
-      "duplicate-set-field",
-      "inject-field",
-      "undefined-field"
+    "enable": [
+      "need-check-nil",
+      "unknown-param-type",
+      "unknown-return-type",
+      "unknown-local-type",
+      "unknown-field-type"
     ]
   }
 }

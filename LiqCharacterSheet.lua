@@ -10,12 +10,24 @@ local defaultFont = "Fonts\\FRIZQT__.TTF"
 local defaultFontsize = 13
 local defaultFontOutline = "OUTLINE"
 local fontOutlineOptions = {"", "OUTLINE", "THICKOUTLINE"}
+---@type LCS_ColorTable
 local defaultColorEnchant = {r = 0, g = 1, b = 0, a = 1}
+---@type LCS_ColorTable
 local defaultColorEnchantMissing = {r = 1, g = 0, b = 0, a = 1}
+---@type LCS_ColorTable
 local defaultColorTexture = {r = 0, g = 0, b = 0, a = 0.33}
+---@type LCS_ColorTable
 local defaultColorLevel = {r = 1, g = 1, b = 1, a = 1}
+---@type LCS_ColorTable
 local defaultColorMaxLevel = {r = 1, g = 1, b = 1, a = 1}
+---@type LCS_ColorTable
 local defaultColorMaxLevelsUpgraded = {r = 0, g = 1, b = 0, a = 1}
+---@param fontString FontString
+---@param color LCS_ColorTable
+local function applyFontStringColor(fontString, color)
+  fontString:SetTextColor(color.r, color.g, color.b, color.a)
+end
+
 local slotOverlayFrameName = "LCSFrame"
 
 ---@type LCS_Config
@@ -139,11 +151,16 @@ local function UpdateSlot(unitId, slotId)
   local enchantPattern = ENCHANTED_TOOLTIP_LINE:gsub("%%s", "(.*)")
   local enchantAtlasPattern = "(.*)|A:(.*):20:20|a"
   local enchantText = ""
+  ---@type LCS_ColorTable
   local colorEnchant = defaultColorEnchant
   local colorEnchantMissing = defaultColorEnchantMissing
+  ---@type LCS_ColorTable
   local colorTexture = defaultColorTexture
+  ---@type LCS_ColorTable
   local colorLevel = defaultColorLevel
+  ---@type LCS_ColorTable
   local colorMaxLevel = defaultColorMaxLevel
+  ---@type LCS_ColorTable
   local colorMaxLevelUpgraded = defaultColorMaxLevelsUpgraded
   local font = defaultFont
   local fontSize = defaultFontsize
@@ -180,16 +197,7 @@ local function UpdateSlot(unitId, slotId)
     colorTexture = config.colors.texture
   end
 
-  local itemLevel = nil
-  local hyperlinkTooltipData = C_TooltipInfo.GetHyperlink(itemLink)
-  if hyperlinkTooltipData ~= nil and hyperlinkTooltipData.lines ~= nil then
-    for lineIndex = 1, #hyperlinkTooltipData.lines do
-      local lineData = hyperlinkTooltipData.lines[lineIndex]
-      if lineData.type == Enum.TooltipDataLineType.ItemLevel then
-        itemLevel = lineData.itemLevel
-      end
-    end
-  end
+  local itemLevel = C_Item.GetDetailedItemLevelInfo(itemLink)
 
   local _, _, _, _, _, _, _, _, itemEquipLoc = C_Item.GetItemInfo(itemLink)
   if itemLevel == nil or config.show.levels == false or config.show.levels == nil then
@@ -237,8 +245,13 @@ local function UpdateSlot(unitId, slotId)
       local match = line.leftText:find(upgradePattern)
       if match then
         if line.leftColor:GenerateHexColor() == DISABLED_FONT_COLOR:GenerateHexColor() then
-          local red, green, blue, alpha = DISABLED_FONT_COLOR:GetRGBA()
-          colorLevel = {r = red, g = green, b = blue, a = alpha}
+          ---@type LCS_ColorTable
+          colorLevel = {
+            r = DISABLED_FONT_COLOR.r or 1,
+            g = DISABLED_FONT_COLOR.g or 1,
+            b = DISABLED_FONT_COLOR.b or 1,
+            a = DISABLED_FONT_COLOR.a or 1,
+          }
         end
       end
     end
@@ -259,8 +272,13 @@ local function UpdateSlot(unitId, slotId)
 
   if maxLevel == nil then
     if config.colors.levels ~= nil then
-      local red, green, blue, alpha = DISABLED_FONT_COLOR:GetRGBA()
-      colorLevel = {r = red, g = green, b = blue, a = alpha}
+      ---@type LCS_ColorTable
+      colorLevel = {
+        r = DISABLED_FONT_COLOR.r or 1,
+        g = DISABLED_FONT_COLOR.g or 1,
+        b = DISABLED_FONT_COLOR.b or 1,
+        a = DISABLED_FONT_COLOR.a or 1,
+      }
     end
     slotOverlay.Level:SetPoint("CENTER", slotOverlay, "CENTER", 0, 0)
     slotOverlay.MaxLevel:Hide()
@@ -302,7 +320,7 @@ local function UpdateSlot(unitId, slotId)
   end
 
   slotOverlay.Enchant:SetText(enchantText)
-  slotOverlay.Enchant:SetTextColor(colorEnchant.r, colorEnchant.g, colorEnchant.b, colorEnchant.a)
+  applyFontStringColor(slotOverlay.Enchant, colorEnchant)
   slotOverlay.Enchant:SetJustifyH(slot.side == inventorySlotSides.RIGHT and inventorySlotSides.RIGHT or inventorySlotSides.LEFT)
 
   if slot.id ~= INVSLOT_MAINHAND and slot.id ~= INVSLOT_OFFHAND then
@@ -355,17 +373,17 @@ local function UpdateSlot(unitId, slotId)
   end
 
   slotOverlay.Level:SetFont(font, fontSize, fontOutline)
-  slotOverlay.Level:SetTextColor(colorLevel.r, colorLevel.g, colorLevel.b, colorLevel.a)
+  applyFontStringColor(slotOverlay.Level, colorLevel)
   slotOverlay.MaxLevel:SetFont(font, fontSize - 3, fontOutline)
-  slotOverlay.MaxLevel:SetTextColor(colorMaxLevel.r, colorMaxLevel.g, colorMaxLevel.b, colorMaxLevel.a)
+  applyFontStringColor(slotOverlay.MaxLevel, colorMaxLevel)
   slotOverlay.Enchant:SetFont(font, fontSize - 3, fontOutline)
   slotOverlay.Tint:SetColorTexture(colorTexture.r, colorTexture.g, colorTexture.b, colorTexture.a)
 
   if itemLevel ~= nil then
     local currentMaxUpgradeLevel = LiqUI.Data:GetCurrentMaxUpgradeLevel()
     if itemLevel == maxLevel or itemLevel >= currentMaxUpgradeLevel then
-      slotOverlay.Level:SetTextColor(colorMaxLevelUpgraded.r, colorMaxLevelUpgraded.g, colorMaxLevelUpgraded.b, colorMaxLevelUpgraded.a)
-      slotOverlay.MaxLevel:SetTextColor(colorMaxLevelUpgraded.r, colorMaxLevelUpgraded.g, colorMaxLevelUpgraded.b, colorMaxLevelUpgraded.a)
+      applyFontStringColor(slotOverlay.Level, colorMaxLevelUpgraded)
+      applyFontStringColor(slotOverlay.MaxLevel, colorMaxLevelUpgraded)
     end
   end
 
