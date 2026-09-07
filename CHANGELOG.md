@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.3 - TBD
+
+- Fixed max item level on Season 2 crafted gear.
+
 ## v1.1.2 - 2026-08-14
 
 - Fixed max upgrade levels for Sporefused, Ascendant Voidforged, and Midnight crafted items.

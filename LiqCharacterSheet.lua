@@ -258,17 +258,17 @@ local function UpdateSlot(unitId, slotId)
   end
 
   local numBonuses = tonumber(itemPayloadSplit[13])
+  ---@type number[]
+  local bonusIDs = {}
   if numBonuses ~= nil and numBonuses > 0 then
     for bonusIndex = 14, 13 + numBonuses do
       local bonusId = tonumber(itemPayloadSplit[bonusIndex])
       if bonusId ~= nil then
-        local maxLevelUpgrade = LiqUI.Data:GetUpgradeMaxLevel(bonusId)
-        if maxLevelUpgrade ~= nil and (maxLevel == nil or maxLevelUpgrade > maxLevel) then
-          maxLevel = maxLevelUpgrade
-        end
+        table.insert(bonusIDs, bonusId)
       end
     end
   end
+  maxLevel = LiqUI.Data:GetUpgradeMaxLevelFromBonusIDs(bonusIDs)
 
   if maxLevel == nil then
     if config.colors.levels ~= nil then
