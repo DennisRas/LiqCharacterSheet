@@ -2,6 +2,7 @@
 
 ## v1.1.3 - TBD
 
+- Updated TOC number to support patch 12.1.5.
 - Fixed max item level on Season 2 crafted gear.
 
 ## v1.1.2 - 2026-08-14

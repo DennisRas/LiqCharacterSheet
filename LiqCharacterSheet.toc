@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: Liq Character Sheet
 ## Notes: Show item levels, enchants, gems and max upgrade levels on your character sheet
 ## Version: @project-version@
