@@ -1,33 +1,23 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: Liq Character Sheet
 ## Notes: Show item levels, enchants, gems and max upgrade levels on your character sheet
 ## Version: @project-version@
-## Author: Liquidor (EU Silvermoon)
+## Author: Liquidor
 ## IconTexture: Interface\AddOns\LiqCharacterSheet\Media\Icon.blp
 ## SavedVariables: LiqCharacterSheetDB
-## X-Website: https://www.curseforge.com/wow/addons/liqcharactersheet
+## X-Website: https://github.com/DennisRas/LiqCharacterSheet
 ## X-Curse-Project-ID: 1447774
 ## X-Wago-ID: E6gv13N1
 ## X-WoWI-ID: 27024
-## Category: Equipment
-## Category-deDE: Ausrüstung
-## Category-esES: Equipo
-## Category-esMX: Equipo
-## Category-frFR: Équipement
-## Category-itIT: Equipaggiamento
-## Category-koKR: 장비
-## Category-ptBR: Equipamento
-## Category-ruRU: Экипировка
-## Category-zhCN: 装备
-## Category-zhTW: 裝備
+
+Libs\LibStub\LibStub.lua
+Libs\LiqUI\LiqUI.xml
 
 Boot.lua
-Data.lua
 LiqCharacterSheet.lua
 
 #@debug@
 Debug\Types\Addon.lua
 Debug\Types\Config.lua
 Debug\Types\CharacterSheet.lua
-Debug\Types\Data.lua
 #@end-debug@
