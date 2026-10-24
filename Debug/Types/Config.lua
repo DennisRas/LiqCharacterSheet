@@ -1,16 +1,10 @@
----@class LCS_ColorTable
----@field r number
----@field g number
----@field b number
----@field a number?
-
 ---@class LCS_ConfigColors
----@field enchants LCS_ColorTable
----@field enchantsMissing LCS_ColorTable
----@field texture LCS_ColorTable
----@field levels LCS_ColorTable
----@field maxLevels LCS_ColorTable
----@field maxLevelsUpgraded LCS_ColorTable
+---@field enchants ColorRGBAData
+---@field enchantsMissing ColorRGBAData
+---@field texture ColorRGBAData
+---@field levels ColorRGBAData
+---@field maxLevels ColorRGBAData
+---@field maxLevelsUpgraded ColorRGBAData
 
 ---@class LCS_ConfigFonts
 ---@field font string

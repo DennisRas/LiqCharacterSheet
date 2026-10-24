@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.4 - TBD
+
+- Updated performance.
+
 ## v1.1.3 - 2026-10-15
 
 - Updated TOC number to support patch 12.1.5.
