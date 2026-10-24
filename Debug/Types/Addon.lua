@@ -7,4 +7,3 @@
 ---@field version string
 ---@field notes string
 ---@field libs LCS_Libs
----@field Events LCS_Events

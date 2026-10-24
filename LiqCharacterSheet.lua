@@ -2,6 +2,7 @@
 local addon = select(2, ...)
 
 local LiqUI = addon.libs.LiqUI
+local Events = LiqUI.Events
 local TableForEach = LiqUI.Utils.TableForEach
 local inventorySlotSides = LiqUI.Constants.inventorySlotSides
 
@@ -10,20 +11,20 @@ local defaultFont = "Fonts\\FRIZQT__.TTF"
 local defaultFontsize = 13
 local defaultFontOutline = "OUTLINE"
 local fontOutlineOptions = {"", "OUTLINE", "THICKOUTLINE"}
----@type LCS_ColorTable
+---@type ColorRGBAData
 local defaultColorEnchant = {r = 0, g = 1, b = 0, a = 1}
----@type LCS_ColorTable
+---@type ColorRGBAData
 local defaultColorEnchantMissing = {r = 1, g = 0, b = 0, a = 1}
----@type LCS_ColorTable
+---@type ColorRGBAData
 local defaultColorTexture = {r = 0, g = 0, b = 0, a = 0.33}
----@type LCS_ColorTable
+---@type ColorRGBAData
 local defaultColorLevel = {r = 1, g = 1, b = 1, a = 1}
----@type LCS_ColorTable
+---@type ColorRGBAData
 local defaultColorMaxLevel = {r = 1, g = 1, b = 1, a = 1}
----@type LCS_ColorTable
+---@type ColorRGBAData
 local defaultColorMaxLevelsUpgraded = {r = 0, g = 1, b = 0, a = 1}
 ---@param fontString FontString
----@param color LCS_ColorTable
+---@param color ColorRGBAData
 local function applyFontStringColor(fontString, color)
   fontString:SetTextColor(color.r, color.g, color.b, color.a)
 end
@@ -56,7 +57,7 @@ local config = {
 
 ---@param unitId string
 ---@param slotId number
-local function UpdateSlot(unitId, slotId)
+local function updateSlot(unitId, slotId)
   if unitId == nil or slotId == nil then
     return
   end
@@ -75,12 +76,16 @@ local function UpdateSlot(unitId, slotId)
   ---@type LCS_SlotOverlay|nil
   local slotOverlay = characterSlotFrame[slotOverlayFrameName]
   if slotOverlay == nil then
-    local relativePoint = slot.side == inventorySlotSides.LEFT and inventorySlotSides.RIGHT or inventorySlotSides.LEFT
+    local anchorOnLeft = slot.side == inventorySlotSides.LEFT
+    local point = anchorOnLeft and "LEFT" or "RIGHT"
+    local relativePoint = anchorOnLeft and "RIGHT" or "LEFT"
     local offsetX = slot.side == inventorySlotSides.LEFT and 9 or -10
     local offsetEnchantY = (slot.id == INVSLOT_MAINHAND or slot.id == INVSLOT_OFFHAND) and -12 or 8
 
-    characterSlotFrame[slotOverlayFrameName] = CreateFrame("Frame", characterSlotFrame:GetName() .. slotOverlayFrameName, characterSlotFrame)
-    slotOverlay = characterSlotFrame[slotOverlayFrameName]
+    ---@type LCS_SlotOverlay
+    local createdOverlay = CreateFrame("Frame", characterSlotFrame:GetName() .. slotOverlayFrameName, characterSlotFrame)
+    characterSlotFrame[slotOverlayFrameName] = createdOverlay
+    slotOverlay = createdOverlay
 
     slotOverlay:SetPoint("CENTER")
     slotOverlay:SetAllPoints(characterSlotFrame)
@@ -103,7 +108,7 @@ local function UpdateSlot(unitId, slotId)
     end
 
     slotOverlay.Enchant = slotOverlay:CreateFontString(slotOverlay:GetName() .. "Enchant", "OVERLAY", "GameTooltipText")
-    slotOverlay.Enchant:SetPoint(slot.side, slotOverlay, relativePoint, offsetX, offsetEnchantY)
+    slotOverlay.Enchant:SetPoint(point, slotOverlay, relativePoint, offsetX, offsetEnchantY)
     slotOverlay.Enchant:SetWidth(80)
     slotOverlay.Enchant:SetWordWrap(false)
     if font then
@@ -119,7 +124,7 @@ local function UpdateSlot(unitId, slotId)
         if slot.side == inventorySlotSides.LEFT then
           socketOffsetX = offsetX + 3 + (15 * (socketIndex - 1))
         end
-        slotOverlay.Sockets[socketIndex]:SetPoint(slot.side, slotOverlay:GetName(), relativePoint, socketOffsetX, 0)
+        slotOverlay.Sockets[socketIndex]:SetPoint(point, slotOverlay:GetName(), relativePoint, socketOffsetX, 0)
       end
     end
   end
@@ -151,16 +156,16 @@ local function UpdateSlot(unitId, slotId)
   local enchantPattern = ENCHANTED_TOOLTIP_LINE:gsub("%%s", "(.*)")
   local enchantAtlasPattern = "(.*)|A:(.*):20:20|a"
   local enchantText = ""
-  ---@type LCS_ColorTable
+  ---@type ColorRGBAData
   local colorEnchant = defaultColorEnchant
   local colorEnchantMissing = defaultColorEnchantMissing
-  ---@type LCS_ColorTable
+  ---@type ColorRGBAData
   local colorTexture = defaultColorTexture
-  ---@type LCS_ColorTable
+  ---@type ColorRGBAData
   local colorLevel = defaultColorLevel
-  ---@type LCS_ColorTable
+  ---@type ColorRGBAData
   local colorMaxLevel = defaultColorMaxLevel
-  ---@type LCS_ColorTable
+  ---@type ColorRGBAData
   local colorMaxLevelUpgraded = defaultColorMaxLevelsUpgraded
   local font = defaultFont
   local fontSize = defaultFontsize
@@ -245,7 +250,7 @@ local function UpdateSlot(unitId, slotId)
       local match = line.leftText:find(upgradePattern)
       if match then
         if line.leftColor:GenerateHexColor() == DISABLED_FONT_COLOR:GenerateHexColor() then
-          ---@type LCS_ColorTable
+          ---@type ColorRGBAData
           colorLevel = {
             r = DISABLED_FONT_COLOR.r or 1,
             g = DISABLED_FONT_COLOR.g or 1,
@@ -272,7 +277,7 @@ local function UpdateSlot(unitId, slotId)
 
   if maxLevel == nil then
     if config.colors.levels ~= nil then
-      ---@type LCS_ColorTable
+      ---@type ColorRGBAData
       colorLevel = {
         r = DISABLED_FONT_COLOR.r or 1,
         g = DISABLED_FONT_COLOR.g or 1,
@@ -354,9 +359,7 @@ local function UpdateSlot(unitId, slotId)
         GameTooltip:SetHyperlink(gemLink)
         GameTooltip:Show()
       end)
-      socketFrame:SetScript("OnLeave", function()
-        GameTooltip:Hide()
-      end)
+      socketFrame:SetScript("OnLeave", GameTooltip_Hide)
       if itemSockets[socketIndex] ~= nil and config.show.gems == true then
         socketFrame:SetNormalTexture(itemSockets[socketIndex])
         socketFrame:Show()
@@ -391,61 +394,52 @@ local function UpdateSlot(unitId, slotId)
 end
 
 ---@param unitId string
-local function UpdateAll(unitId)
+local function updateAll(unitId)
   TableForEach(LiqUI.Data:GetInventorySlots(), function(slot)
-    UpdateSlot(unitId, slot.id)
+    updateSlot(unitId, slot.id)
   end)
 end
 
----@param self LCS_Events
----@param event string
-local function OnEvent(self, event, ...)
-  if self[event] == nil then
-    return
-  end
-  self[event](self, event, ...)
+---@param _frame Frame
+---@param _event string
+local function onPlayerEnteringWorld(_frame, _event)
+  updateAll("player")
 end
 
----@class LCS_Events : Frame
-local Events = CreateFrame("Frame")
-addon.Events = Events
-
----@param self LCS_Events
-function Events:PLAYER_ENTERING_WORLD()
-  UpdateAll("player")
-end
-
----@param self LCS_Events
----@param slotId number|nil
-function Events:PLAYER_EQUIPMENT_CHANGED(_, slotId)
+---@param _frame Frame
+---@param _event string
+---@param slotId number?
+local function onPlayerEquipmentChanged(_frame, _event, slotId)
   if slotId == nil then
     return
   end
-  UpdateSlot("player", slotId)
+  updateSlot("player", slotId)
 end
 
----@param self LCS_Events
----@param unitId string|nil
-function Events:UNIT_INVENTORY_CHANGED(_, unitId)
+---@param _frame Frame
+---@param _event string
+---@param unitId string?
+local function onUnitInventoryChanged(_frame, _event, unitId)
   if unitId == nil then
     return
   end
-  UpdateAll(unitId)
+  updateAll(unitId)
 end
 
----@param self LCS_Events
-function Events:INSPECT_READY()
-  UpdateAll("target")
+---@param _frame Frame
+---@param _event string
+local function onInspectReady(_frame, _event)
+  updateAll("target")
 end
 
----@param self LCS_Events
-function Events:BAG_UPDATE_DELAYED()
-  UpdateAll("player")
+---@param _frame Frame
+---@param _event string
+local function onBagUpdateDelayed(_frame, _event)
+  updateAll("player")
 end
 
-Events:RegisterEvent("PLAYER_ENTERING_WORLD")
-Events:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-Events:RegisterEvent("UNIT_INVENTORY_CHANGED")
-Events:RegisterEvent("INSPECT_READY")
-Events:RegisterEvent("BAG_UPDATE_DELAYED")
-Events:SetScript("OnEvent", OnEvent)
+Events:RegisterEvent("PLAYER_ENTERING_WORLD", onPlayerEnteringWorld, true)
+Events:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", onPlayerEquipmentChanged, true)
+Events:RegisterEvent("UNIT_INVENTORY_CHANGED", onUnitInventoryChanged, true)
+Events:RegisterEvent("INSPECT_READY", onInspectReady, true)
+Events:RegisterEvent("BAG_UPDATE_DELAYED", onBagUpdateDelayed, true)

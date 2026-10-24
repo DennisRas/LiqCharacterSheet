@@ -4,5 +4,3 @@
 ---@field MaxLevel FontString
 ---@field Enchant FontString
 ---@field Sockets Button[]
-
----@class LCS_Events : Frame
