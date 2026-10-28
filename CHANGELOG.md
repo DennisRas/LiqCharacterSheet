@@ -1,8 +1,9 @@
 # Changelog
 
-## v1.1.4 - TBD
+## v1.1.4 - 2026-10-28
 
 - Updated performance.
+- Updated tables.
 
 ## v1.1.3 - 2026-10-15
 
